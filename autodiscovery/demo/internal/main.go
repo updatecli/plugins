@@ -14,8 +14,9 @@ type Output struct {
 
 // Input represents the JSON input provided by Updatecli.
 type Input struct {
-	ScmID    string `json:"scm_id"`
-	ActionID string `json:"action_id"`
+	ScmID    string `json:"scmid"`
+	ActionID string `json:"actionid"`
+	RootDir  string `json:"rootdir"`
 	Spec     Spec   `json:"spec"`
 }
 
