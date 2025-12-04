@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://xtp.dylibso.com/assets/wasm/schema.json
+# Learn more at https://docs.xtp.dylibso.com/docs/concepts/xtp-schema
+version: v1-draft
+exports:
+  input:
+    $ref: "#/components/schemas/input"
+    contentType: application/json
+  output:
+    $ref: "#/components/schemas/output"
+    contentType: application/json
+components:
+  schemas:
+    input:
+      description: Autodiscovery plugin input.
+      properties:
+        scmid:
+          type: string
+          description: The scmid specified in the Updatecli manifest.
+          nullable: true
+        actionid:
+          type: string
+          description: The actionid specified in the Updatecli manifest.
+          nullable: true
+        spec:
+          type: object
+          description: The plugin parameters"
+    output:
+      description: The autodiscovery plugin output.
+      properties:
+        manifests:
+          type: array
+          items:
+            type: string
+          description: The list of generated Updatecli manifests.
