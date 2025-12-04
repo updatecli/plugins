@@ -8,9 +8,9 @@ An Updatecli plugin is a WASM module that extends Updatecli's capabilities.
 
 Currently, Updatecli supports autodiscovery plugins only. More plugin kinds may be added based on user feedback.
 
-Plugins can be written in any language that compiles to WebAssembly (WASM). This project uses the Extism framework: https://extism.org/docs/quickstart/plugin-quickstart.
+Plugins can be written in any language that compiles to WebAssembly (WASM). This project uses the Extism framework: <https://extism.org/docs/quickstart/plugin-quickstart>.
 
-In this project, the standard Go toolchain is preferred over TinyGo because TinyGo does not support the `text/template` package (see https://tinygo.org/docs/reference/lang-support/stdlib/#texttemplate). `text/template` is useful for generating Updatecli manifests. You may still use TinyGo if you prefer, but be aware of its stdlib limitations.
+In this project, the standard Go toolchain is preferred over TinyGo because TinyGo does not support the `text/template` package (see <https://tinygo.org/docs/reference/lang-support/stdlib/#texttemplate>). `text/template` is useful for generating Updatecli manifests. You may still use TinyGo if you prefer, but be aware of its stdlib limitations.
 
 ## Contract
 
@@ -24,6 +24,7 @@ A plugin receives a JSON object with the following fields:
 {
   "scmid": "default",
   "actionid": "default",
+  "rootdir"": "current directory"
   "spec": {
     "plugin_param1": "",
     "plugin_param2": ""
@@ -53,6 +54,7 @@ A plugin must output a JSON object such as
 Where `manifests` contains the list of generated Updatecli manifests
 
 Guidelines:
+
 - Include a `version` field in generated manifests to indicate the minimum Updatecli version required.
 - Do not set `pipelineid` in generated manifests (Updatecli overrides it).
 
