@@ -1,5 +1,5 @@
 package internal
 
 var (
-	DefaultPath = "/mnt/data.txt"
+	DefaultPath = "data.txt"
 )
