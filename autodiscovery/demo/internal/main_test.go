@@ -14,7 +14,9 @@ func TestRun(t *testing.T) {
 		{
 			input: Input{
 				Spec: Spec{
-					Path: "testdata/data.txt",
+					Files: []string{
+						"testdata/data.txt",
+					},
 				},
 			},
 			expectedOutput: Output{
@@ -26,7 +28,6 @@ sources:
     kind: 'dockerimage'
     spec:
       image: 'fluent/fluent-bit'
-      tagfilter: '*'
       versionfilter:
         kind: 'semver'
         pattern: '*'

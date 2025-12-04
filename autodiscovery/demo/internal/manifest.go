@@ -30,7 +30,7 @@ type TemplateParams struct {
 	VersionFilterPattern string
 }
 
-func Generate(params ManifestParams) (string, error) {
+func Generate(params ManifestParams, targetFile string) (string, error) {
 
 	var tmpl *template.Template
 
@@ -41,9 +41,9 @@ func Generate(params ManifestParams) (string, error) {
 		Release:              params.Release,
 		ScmID:                params.ScmID,
 		SourceID:             params.ImageName,
-		TagFilter:            "*",
+		TagFilter:            "",
 		TargetID:             params.ImageName,
-		TargetFile:           params.Spec.Path,
+		TargetFile:           targetFile,
 		VersionFilterKind:    "semver",
 		VersionFilterPattern: "*",
 	}
