@@ -98,7 +98,7 @@ func Run(params Input, hostFunc hostFunc) (*Output, error) {
 
 			dockerFilterSpec, err := hostFunc.GetDockerFilter(imageName, imageTag)
 			if err != nil {
-				return nil, fmt.Errorf("unable to call getDockerFilter function %v\n%v", err, dockerFilterSpec)
+				continue
 			}
 
 			if dockerFilterSpec != nil {

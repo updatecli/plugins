@@ -30,7 +30,7 @@ targets:
 {{- end }}
     spec:
       file: '{{ .TargetFile }}'
-      matchpattern: '{{ .ImageName }}(.*) ({{ .Release }})'
+      matchpattern: '{{ .ImageName }}:(.*) ({{ .Release }})'
       replacepattern: '{{ .ImageName }}:{{ "{{" }} source "{{ .SourceID }}" {{ "}}" }} {{ .Release }}'
 `
 )

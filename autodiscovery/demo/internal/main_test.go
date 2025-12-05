@@ -57,7 +57,7 @@ targets:
     kind: 'file'
     spec:
       file: 'testdata/data.txt'
-      matchpattern: 'fluent/fluent-bit(.*) (harvester,release/harvester/v1.4-head,release/harvester/v1.4.3)'
+      matchpattern: 'fluent/fluent-bit:(.*) (harvester,release/harvester/v1.4-head,release/harvester/v1.4.3)'
       replacepattern: 'fluent/fluent-bit:{{ source "fluent/fluent-bit" }} harvester,release/harvester/v1.4-head,release/harvester/v1.4.3'
 `,
 				},
