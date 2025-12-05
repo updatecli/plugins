@@ -1,16 +1,22 @@
-package internal
+package main
 
 import (
 	"encoding/json"
 	"fmt"
 
 	"github.com/extism/go-pdk"
+	"github.com/updatecli/plugins/autodiscovery/demo/internal/filter"
 )
+
+type wasmHostFunc struct{}
 
 //go:wasmimport extism:host/user generate_docker_source_spec
 func generate_docker_source_spec(uint64) uint64
 
-func getDockerFilter(image, tag string) (*filterSpec, error) {
+//go:wasmimport extism:host/user versionfilter_greater_than_pattern
+func versionfilter_greater_than_pattern(uint64) uint64
+
+func (w wasmHostFunc) GetDockerFilter(image, tag string) (*filter.Spec, error) {
 
 	input := struct {
 		Image string `json:"image"`
@@ -33,7 +39,7 @@ func getDockerFilter(image, tag string) (*filterSpec, error) {
 	response := string(rmem.ReadBytes())
 	pdk.OutputString(response)
 
-	filterSpec := filterSpec{}
+	filterSpec := filter.Spec{}
 
 	err = json.Unmarshal([]byte(response), &filterSpec)
 
@@ -45,14 +51,11 @@ func getDockerFilter(image, tag string) (*filterSpec, error) {
 
 }
 
-//go:wasmimport extism:host/user versionfilter_greater_than_pattern
-func versionfilter_greater_than_pattern(uint64) uint64
-
-// versionFilterGreaterThanPattern modifies the provided version filter pattern to be greater than the specified pattern.
-func versionFilterGreaterThanPattern(versionFilter *VersionFilter, pattern string) error {
+// VersionFilterGreaterThanPattern modifies the provided version filter pattern to be greater than the specified pattern.
+func (w wasmHostFunc) VersionFilterGreaterThanPattern(versionFilter *filter.VersionFilter, pattern string) error {
 	input := struct {
-		VersionFilter VersionFilter `json:"versionfilter"`
-		Pattern       string        `json:"pattern"`
+		VersionFilter filter.VersionFilter `json:"versionfilter"`
+		Pattern       string               `json:"pattern"`
 	}{
 		VersionFilter: *versionFilter,
 		Pattern:       pattern,

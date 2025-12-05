@@ -6,8 +6,12 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/updatecli/plugins/autodiscovery/demo/internal/filter"
 )
 
+// Output represents the JSON output returned to Updatecli.
+// It contains the discovered manifests.
 type Output struct {
 	Manifests []string
 }
@@ -20,12 +24,15 @@ type Input struct {
 	Spec     Spec   `json:"spec"`
 }
 
-type filterSpec struct {
-	VersionFilter VersionFilter `json:"versionfilter"`
-	TagFilter     string        `json:"tagfilter"`
+// hostFunc defines the interface for host functions used in the Run function.
+// it's primary goal is to facilitate testing by allowing the injection of mock implementations.
+type hostFunc interface {
+	GetDockerFilter(image, tag string) (*filter.Spec, error)
+	VersionFilterGreaterThanPattern(versionFilter *filter.VersionFilter, pattern string) error
 }
 
-func Run(params Input) (*Output, error) {
+// Run executes the autodiscovery process based on the provided input parameters and host functions.
+func Run(params Input, hostFunc hostFunc) (*Output, error) {
 
 	var results Output
 	var errs []error
@@ -84,12 +91,12 @@ func Run(params Input) (*Output, error) {
 
 			tagFilter := "*"
 			// By default, we use a semver filter with wildcard pattern
-			versionFilter := VersionFilter{
+			versionFilter := filter.VersionFilter{
 				Kind:    "semver",
 				Pattern: "*",
 			}
 
-			dockerFilterSpec, err := getDockerFilter(imageName, imageTag)
+			dockerFilterSpec, err := hostFunc.GetDockerFilter(imageName, imageTag)
 			if err != nil {
 				return nil, fmt.Errorf("unable to call getDockerFilter function %v\n%v", err, dockerFilterSpec)
 			}
@@ -104,7 +111,7 @@ func Run(params Input) (*Output, error) {
 				versionFilter.Kind = params.Spec.VersionFilter.Kind
 				versionFilter.Pattern = params.Spec.VersionFilter.Pattern
 
-				err = versionFilterGreaterThanPattern(&versionFilter, imageTag)
+				err = hostFunc.VersionFilterGreaterThanPattern(&versionFilter, imageTag)
 				if err != nil {
 					return nil, fmt.Errorf("unable to call versionFilterGreaterThanPattern function: %w", err)
 				}

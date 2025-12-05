@@ -3,6 +3,8 @@ package internal
 import (
 	"bytes"
 	"text/template"
+
+	"github.com/updatecli/plugins/autodiscovery/demo/internal/filter"
 )
 
 // ManifestParams holds the parameters required to generate the Updatecli manifest.
@@ -14,7 +16,7 @@ type ManifestParams struct {
 	Release       string
 	Spec          Spec
 	TagFilter     string
-	VersionFilter VersionFilter
+	VersionFilter filter.VersionFilter
 }
 
 // templateParams holds the parameters used to populate the manifest template.

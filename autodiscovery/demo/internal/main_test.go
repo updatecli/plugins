@@ -4,7 +4,26 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/updatecli/plugins/autodiscovery/demo/internal/filter"
 )
+
+type mockHF struct{}
+
+func (m mockHF) GetDockerFilter(image, tag string) (*filter.Spec, error) {
+	return &filter.Spec{
+		VersionFilter: filter.VersionFilter{
+			Kind:    "semver",
+			Pattern: "*",
+		},
+		TagFilter: "*",
+	}, nil
+}
+
+func (m mockHF) VersionFilterGreaterThanPattern(versionFilter *filter.VersionFilter, pattern string) error {
+	versionFilter.Kind = "semver"
+	versionFilter.Pattern = ">" + pattern
+	return nil
+}
 
 func TestRun(t *testing.T) {
 	testdata := []struct {
@@ -28,6 +47,7 @@ sources:
     kind: 'dockerimage'
     spec:
       image: 'fluent/fluent-bit'
+      tagfilter: '*'
       versionfilter:
         kind: 'semver'
         pattern: '*'
@@ -37,7 +57,7 @@ targets:
     kind: 'file'
     spec:
       file: 'testdata/data.txt'
-      matchpattern: '(.*) (harvester,release/harvester/v1.4-head,release/harvester/v1.4.3)'
+      matchpattern: 'fluent/fluent-bit(.*) (harvester,release/harvester/v1.4-head,release/harvester/v1.4.3)'
       replacepattern: 'fluent/fluent-bit:{{ source "fluent/fluent-bit" }} harvester,release/harvester/v1.4-head,release/harvester/v1.4.3'
 `,
 				},
@@ -46,7 +66,8 @@ targets:
 	}
 
 	for _, td := range testdata {
-		gotOutput, err := Run(td.input)
+		mockHF := mockHF{}
+		gotOutput, err := Run(td.input, mockHF)
 		assert.NoError(t, err)
 
 		assert.Equalf(t, td.expectedOutput, *gotOutput, "strings differ:\nexpected=%s\nactual=%s", td.expectedOutput, *gotOutput)

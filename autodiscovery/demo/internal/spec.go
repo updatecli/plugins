@@ -1,5 +1,7 @@
 package internal
 
+import "github.com/updatecli/plugins/autodiscovery/demo/internal/filter"
+
 // Spec represents the plugin specification.
 type Spec struct {
 	// Files is the list of file path to search for manifests.
@@ -30,12 +32,5 @@ type Spec struct {
 	// ```
 
 	//	and its type like regex, semver, or just latest.
-	VersionFilter VersionFilter `json:",omitempty"`
-}
-
-type VersionFilter struct {
-	// Kind defines which kind of version filter to use
-	Kind string `json:",omitempty"`
-	// Pattern defines the version filter pattern
-	Pattern string `json:",omitempty"`
+	VersionFilter filter.VersionFilter `json:",omitempty"`
 }

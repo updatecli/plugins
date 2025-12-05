@@ -19,7 +19,9 @@ func autodiscovery() int32 {
 		return -1
 	}
 
-	results, err := internal.Run(params)
+	hostFunc := wasmHostFunc{}
+
+	results, err := internal.Run(params, hostFunc)
 	if err != nil {
 		pdk.SetError(fmt.Errorf("running plugin: %w", err))
 		return -1
