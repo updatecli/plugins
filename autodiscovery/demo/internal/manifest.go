@@ -2,21 +2,23 @@ package internal
 
 import (
 	"bytes"
-	"html/template"
+	"text/template"
 )
 
 // ManifestParams holds the parameters required to generate the Updatecli manifest.
 type ManifestParams struct {
-	ActionID  string
-	ScmID     string
-	ImageName string
-	ImageTag  string
-	Release   string
-	Spec      Spec
+	ActionID      string
+	ScmID         string
+	ImageName     string
+	ImageTag      string
+	Release       string
+	Spec          Spec
+	TagFilter     string
+	VersionFilter VersionFilter
 }
 
-// TemplateParams holds the parameters used to populate the manifest template.
-type TemplateParams struct {
+// templateParams holds the parameters used to populate the manifest template.
+type templateParams struct {
 	ActionID             string
 	ImageName            string
 	ImageTag             string
@@ -30,22 +32,22 @@ type TemplateParams struct {
 	VersionFilterPattern string
 }
 
-func Generate(params ManifestParams, targetFile string) (string, error) {
+func generate(params ManifestParams, targetFile string) (string, error) {
 
 	var tmpl *template.Template
 
-	p := TemplateParams{
+	p := templateParams{
 		ActionID:             params.ActionID,
 		ImageName:            params.ImageName,
 		ImageTag:             params.ImageTag,
 		Release:              params.Release,
 		ScmID:                params.ScmID,
 		SourceID:             params.ImageName,
-		TagFilter:            "",
+		TagFilter:            params.TagFilter,
 		TargetID:             params.ImageName,
 		TargetFile:           targetFile,
-		VersionFilterKind:    "semver",
-		VersionFilterPattern: "*",
+		VersionFilterKind:    params.VersionFilter.Kind,
+		VersionFilterPattern: params.VersionFilter.Pattern,
 	}
 
 	tmpl, err := template.New("manifest").Parse(manifestTemplate)

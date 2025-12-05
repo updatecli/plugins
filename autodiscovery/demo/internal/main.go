@@ -20,6 +20,11 @@ type Input struct {
 	Spec     Spec   `json:"spec"`
 }
 
+type filterSpec struct {
+	VersionFilter VersionFilter `json:"versionfilter"`
+	TagFilter     string        `json:"tagfilter"`
+}
+
 func Run(params Input) (*Output, error) {
 
 	var results Output
@@ -59,17 +64,65 @@ func Run(params Input) (*Output, error) {
 			imageName, imageTag, release := parseLine(strings.TrimSpace(line))
 
 			// Skip entries with no tag
-			if imageTag == "" || imageName == "" {
+			if imageTag == "" || imageName == "" || imageTag == "latest" {
 				continue
 			}
 
-			manifest, err := Generate(ManifestParams{
-				ImageName: imageName,
-				ImageTag:  imageTag,
-				Release:   release,
-				ActionID:  params.ActionID,
-				ScmID:     params.ScmID,
-				Spec:      params.Spec,
+			if len(params.Spec.Ignore) > 0 {
+				if params.Spec.Ignore.isMatchingRules(params.RootDir, datafile, imageName) {
+					fmt.Printf("Ignoring container %q from %q, as matching ignore rule(s)\n", imageName, datafile)
+					continue
+				}
+			}
+
+			if len(params.Spec.Only) > 0 {
+				if !params.Spec.Only.isMatchingRules(params.RootDir, datafile, imageName) {
+					fmt.Printf("Ignoring container %q from %q, as not matching only rule(s)\n", imageName, datafile)
+					continue
+				}
+			}
+
+			tagFilter := "*"
+			// By default, we use a semver filter with wildcard pattern
+			versionFilter := VersionFilter{
+				Kind:    "semver",
+				Pattern: "*",
+			}
+
+			dockerFilterSpec, err := getDockerFilter(imageName, imageTag)
+			if err != nil {
+				return nil, fmt.Errorf("unable to call getDockerFilter function %v\n%v", err, dockerFilterSpec)
+			}
+
+			if dockerFilterSpec != nil {
+				versionFilter = dockerFilterSpec.VersionFilter
+				tagFilter = dockerFilterSpec.TagFilter
+			}
+
+			// Override version filter if specified in the spec
+			if params.Spec.VersionFilter.Kind != "" {
+				versionFilter.Kind = params.Spec.VersionFilter.Kind
+				versionFilter.Pattern = params.Spec.VersionFilter.Pattern
+
+				err = versionFilterGreaterThanPattern(&versionFilter, imageTag)
+				if err != nil {
+					return nil, fmt.Errorf("unable to call versionFilterGreaterThanPattern function: %w", err)
+				}
+			}
+
+			if params.Spec.VersionFilter.Kind != "" {
+				dockerFilterSpec.VersionFilter = params.Spec.VersionFilter
+			}
+
+			manifest, err := generate(ManifestParams{
+				ImageName:     imageName,
+				ImageTag:      imageTag,
+				Release:       release,
+				ActionID:      params.ActionID,
+				ScmID:         params.ScmID,
+				Spec:          params.Spec,
+				VersionFilter: versionFilter,
+				TagFilter:     tagFilter,
 			}, datafile)
 			if err != nil {
 				errs = append(errs, err)
