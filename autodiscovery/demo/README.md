@@ -14,6 +14,11 @@ to the autodiscovery configuration.
 It leverages WASM Host function `generate_docker_source_spec` and `versionfilter_greater_than_pattern`
 To have a similar experience than Updatecli native plugin.
 
+## How To
+
+- `make build` to build the binary named "demo.wasm"
+- `make test` to run the UT
+
 ## Example
 
 ```
